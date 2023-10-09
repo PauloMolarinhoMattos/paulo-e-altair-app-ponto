@@ -16,14 +16,13 @@ export default function BancoDeHoras() {
         }}
         width={Dimensions.get("window").width - 40} // subtraia o padding total (20 à esquerda e 20 à direita)
         height={220}
-        yAxisLabel="$"
-        yAxisSuffix="k"
+        yAxisSuffix=" h"
         yAxisInterval={1}
         chartConfig={{
             backgroundColor: "#132f48",
             backgroundGradientFrom: "#132f48",
             backgroundGradientTo: "#ff8a50", // Ajustado para um tom de laranja mais escuro
-            decimalPlaces: 2,
+            decimalPlaces: 1,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
