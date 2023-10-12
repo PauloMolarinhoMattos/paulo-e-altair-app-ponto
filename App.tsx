@@ -11,6 +11,7 @@ import DrawerRoutes from './src/routes/drawer.routes';
 import { ApplicationProvider } from '@ui-kitten/components';
 import { mapping, light as lightTheme } from '@eva-design/eva';
 import { AjustarPonto } from './src/pages/ajustar-ponto';
+import LoadingPonto from './src/pages/loading-ponto';
 
 
 const Stack = createNativeStackNavigator();
@@ -30,6 +31,8 @@ export default function App() {
         <Stack.Screen name='Drawer' component={DrawerRoutes} />
 
         <Stack.Screen name='AjustarPonto' component={AjustarPonto} />
+
+        <Stack.Screen name='LoadingPonto' component={LoadingPonto}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
