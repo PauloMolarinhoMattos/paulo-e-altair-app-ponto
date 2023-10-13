@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -34,6 +34,7 @@ const Ring = (props: { delay: number; color: string }) => {
 const screen = Dimensions.get("window");
 
 export default function Ponto(props: any) {
+  let firstPonto = true;
   const [isEntrada, setIsEntrada] = useState(true);
   const [keyboardOpen, setKeyboardOpen] = useState(false); // Rastrear o status do teclado
   const [currentDateTime, setCurrentDateTime] = useState(new Date()); // Nova state para a data/hora atual
@@ -70,12 +71,31 @@ export default function Ponto(props: any) {
   const activeRingColor = "#C59B00";
 
   function onSavePonto(value: boolean) {
-    props.navigation.navigate("LoadingPonto");
+    props.navigation.navigate("LoadingPonto", { firstPonto });
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.firstRow}></View>
+      <View style={styles.firstRow}>
+        <View
+          style={{
+            height: "100%",
+            backgroundColor: "#183B5B",
+            borderBottomLeftRadius: 30,
+            borderBottomRightRadius: 30,
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          <View style={styles.imageWrapper}>
+            <Image source={require("./../../assets/logo-branco.png")} style={styles.imageStyle} />
+          </View>
+          <View style={{ display: "flex", justifyContent: "center" }}>
+            <Text style={{ fontSize: 17, color: "white" }}>Bem Vindo, Usuário Aleatório</Text>
+            <Text style={{ fontSize: 14, color: "white" }}>Desenvolvedor Pleno I</Text>
+          </View>
+        </View>
+      </View>
 
       <View style={styles.secondRow}>
         <Ring delay={0} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
@@ -126,15 +146,29 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   firstRow: {
-    flex: 1,
+    flex: 1.2,
+    display: "flex",
+    justifyContent: "flex-end",
   },
   secondRow: {
-    flex: 5, // 80% do espaço disponível
+    flex: 6, // 80% do espaço disponível
     alignItems: "center",
     justifyContent: "center",
   },
   thirdRow: {
-    flex: 4, // 10% do espaço disponível
+    flex: 2.4, // 10% do espaço disponível
+  },
+  imageStyle: {
+    marginTop: 40,
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain", // A imagem será ajustada para caber dentro das dimensões do contêiner
+  },
+  imageWrapper: {
+    height: "65%",
+    width: "24%",
+    alignItems: "center", // Adicionado para centralizar a imagem horizontalmente
+    justifyContent: "center", // Adicionado para centralizar a imagem verticalmente
   },
   button: {
     borderWidth: 3,
