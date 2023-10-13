@@ -1,11 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Button, StyleSheet, Text, Pressable, View, Image } from "react-native";
 import { Input } from "@rneui/base";
+import { AuthContext } from "../contexts/auth";
 
 export default function Login(props: any) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const context: any = useContext(AuthContext);
+
+  function handleLogin() {
+    context.signIn(username, password);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
@@ -34,7 +41,7 @@ export default function Login(props: any) {
       </View>
       <View style={styles.thirdRow}>
         <Pressable
-          onPress={() => props.navigation.navigate("Drawer")}
+          onPress={() => handleLogin()}
           style={({ pressed }) => [styles.button, pressed ? { borderColor: "#fabd7b" } : { borderColor: "white" }]}
         >
           {({ pressed }) => <Text style={[{ color: "white" }, pressed ? { color: "#fabd7b" } : {}]}>Entrar</Text>}

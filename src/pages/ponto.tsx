@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image } from "react-native";
 import Animated, {
   interpolate,
@@ -8,9 +8,11 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-
+import LottieView from "lottie-react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
+import { delay } from "../utils";
+import { AuthContext } from "../contexts/auth";
 
 const Ring = (props: { delay: number; color: string }) => {
   const ring = useSharedValue(0);
@@ -34,8 +36,8 @@ const Ring = (props: { delay: number; color: string }) => {
 const screen = Dimensions.get("window");
 
 export default function Ponto(props: any) {
-  let firstPonto = true;
   const [isEntrada, setIsEntrada] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [keyboardOpen, setKeyboardOpen] = useState(false); // Rastrear o status do teclado
   const [currentDateTime, setCurrentDateTime] = useState(new Date()); // Nova state para a data/hora atual
 
@@ -46,6 +48,9 @@ export default function Ponto(props: any) {
   );
 
   useEffect(() => {
+    delay(800).then(() => {
+      setIsLoading(false);
+    });
     // Configurando os listeners
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => setKeyboardOpen(true));
 
@@ -71,10 +76,24 @@ export default function Ponto(props: any) {
   const activeRingColor = "#C59B00";
 
   function onSavePonto(value: boolean) {
-    props.navigation.navigate("LoadingPonto", { firstPonto });
+    props.navigation.navigate("LoadingPonto", { firstPonto: context.firstPonto });
+    delay(300).then(() => {
+      setIsEntrada(!isEntrada);
+    });
   }
 
-  return (
+  const context: any = useContext(AuthContext);
+
+  return isLoading ? (
+    <View style={{ height: "100%", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <LottieView
+        source={require("./../../assets/lottie/animation_lnmmkt86.json")}
+        autoPlay
+        loop
+        style={{ width: 160, height: 160 }}
+      />
+    </View>
+  ) : (
     <View style={styles.container}>
       <View style={styles.firstRow}>
         <View
@@ -91,7 +110,7 @@ export default function Ponto(props: any) {
             <Image source={require("./../../assets/logo-branco.png")} style={styles.imageStyle} />
           </View>
           <View style={{ display: "flex", justifyContent: "center" }}>
-            <Text style={{ fontSize: 17, color: "white" }}>Bem Vindo, Usuário Aleatório</Text>
+            <Text style={{ fontSize: 17, color: "white" }}>Bem Vindo, {context.user}</Text>
             <Text style={{ fontSize: 14, color: "white" }}>Desenvolvedor Pleno I</Text>
           </View>
         </View>
@@ -146,7 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   firstRow: {
-    flex: 1.2,
+    flex: 0.9,
     display: "flex",
     justifyContent: "flex-end",
   },
@@ -156,10 +175,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   thirdRow: {
-    flex: 2.4, // 10% do espaço disponível
+    flex: 2.5, // 10% do espaço disponível
   },
   imageStyle: {
-    marginTop: 40,
+    marginTop: 30,
     width: "100%",
     height: "100%",
     resizeMode: "contain", // A imagem será ajustada para caber dentro das dimensões do contêiner

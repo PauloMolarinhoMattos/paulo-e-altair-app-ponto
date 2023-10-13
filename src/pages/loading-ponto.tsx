@@ -1,6 +1,6 @@
 import { View, Text } from "@motify/components";
 import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   BackHandler,
   Button,
@@ -15,6 +15,7 @@ import {
 import { delay } from "../utils";
 
 import LottieView from "lottie-react-native";
+import { AuthContext } from "../contexts/auth";
 
 type LoadingPontoProps = {
   navigation: any; // You can specify more precise types if you want.
@@ -24,11 +25,13 @@ type LoadingPontoProps = {
 const screen = Dimensions.get("window");
 
 export default function LoadingPonto(props: any) {
+  console.log(props.route.params);
   const [opacity] = useState(new Animated.Value(0));
   const [isLoading, setIsLoading] = useState(true);
   const [hasClicked, setHasClicked] = useState(false); // Estado para verificar se um LottieView foi clicado.
   const [activeLottie, setActiveLottie] = useState<number | null>(null); // Armazenar qual LottieView foi clicado.
   const [activeImage, setActiveImage] = useState<number | null>(null); // Armazenar qual imagem foi clicada.
+  const context: any = useContext(AuthContext);
 
   useEffect(() => {
     delay(1700).then(() => {
@@ -147,7 +150,10 @@ export default function LoadingPonto(props: any) {
                 borderRadius: 10,
               }}
               disabled={false}
-              onPress={() => props.navigation.goBack()} // Atualiza isEntrada para false
+              onPress={() => {
+                context.setFirstPonto(false);
+                props.navigation.goBack();
+              }} // Atualiza isEntrada para false
             >
               <Text style={{ fontSize: 16, color: "#132f48" }}>Voltar</Text>
             </TouchableOpacity>
@@ -176,12 +182,10 @@ export default function LoadingPonto(props: any) {
             <LottieView
               source={require("./../../assets/lottie/animation_lnmmlqov.json")}
               autoPlay
-              style={{ width: 160, height: 160, position: "absolute" }}
+              style={{ width: 210, height: 210, position: "absolute" }}
               loop={false}
               onAnimationFinish={() => {
-                setTimeout(() => {
-                  props.navigation.goBack();
-                }, 100); // delay de 1 segundo
+                props.navigation.goBack();
               }}
             />
           </View>
@@ -196,7 +200,7 @@ export default function LoadingPonto(props: any) {
               alignItems: "center",
             }}
           >
-            <Text style={{ fontSize: 18, color: "#132f48" }}>Batida Registrada com sucesso!</Text>
+            <Text style={{ fontSize: 19, color: "#132f48" }}>Batida Registrada com sucesso!</Text>
           </View>
         </View>
       )}
