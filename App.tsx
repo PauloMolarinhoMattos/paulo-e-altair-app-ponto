@@ -25,7 +25,7 @@ export default function App() {
 
           <Stack.Screen name="Drawer" options={{ headerShown: false }} component={DrawerRoutes} />
 
-          <Stack.Screen name="AjustarPonto" component={AjustarPonto} />
+          <Stack.Screen name="Ajustar Ponto" component={AjustarPonto} />
 
           <Stack.Screen name="LoadingPonto" options={{ headerShown: false }} component={LoadingPonto}></Stack.Screen>
         </Stack.Navigator>

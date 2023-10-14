@@ -13,6 +13,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
 import { delay } from "../utils";
 import { AuthContext } from "../contexts/auth";
+import Icon from "react-native-vector-icons/Ionicons"; // Estou usando Ionicons aqui, mas você pode escolher outro conjunto de ícones.
 
 const Ring = (props: { delay: number; color: string }) => {
   const ring = useSharedValue(0);
@@ -73,22 +74,25 @@ export default function Ponto(props: any) {
   }, []);
 
   const mockData = [
-    { id: "1", title: "08/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-    { id: "2", title: "07/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-    { id: "3", title: "06/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
+    { id: "1", title: "08/10/2023", horarios: ["13:30"] },
+    { id: "2", title: "08/10/2023", horarios: ["12:00"] },
+    { id: "3", title: "08/10/2023", horarios: ["08:30"] },
   ];
 
   interface ItemProps {
     title: string;
-    subtitle: string;
+    horarios: (string | null)[];
     func: () => void;
   }
 
-  const Item: React.FC<ItemProps> = ({ title, subtitle, func }) => (
+  const Item: React.FC<ItemProps> = ({ title, horarios, func }) => (
     <TouchableOpacity onPress={func} style={styles.itemContainer}>
+      <Icon name="location-outline" size={20} color="#0A4B86" selectionColor="#0A4B86" />
       <View style={styles.textContainer}>
-        <Text style={styles.itemText}>{title}</Text>
-        <Text style={styles.itemSubtitle}>{subtitle}</Text>
+        <Text style={styles.itemText}>
+          {"   "}
+          {title} - {horarios.map((horario) => (horario ? horario : "X"))}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -116,7 +120,7 @@ export default function Ponto(props: any) {
     </View>
   ) : (
     <View style={styles.container}>
-      <View style={styles.firstRow}>
+      <View style={{ flex: 2 }}>
         <View
           style={{
             height: "100%",
@@ -136,50 +140,60 @@ export default function Ponto(props: any) {
           </View>
         </View>
       </View>
+      <View style={{ flex: 19, display: "flex", flexDirection: "column" }}>
+        <View
+          style={{
+            display: "flex",
+            flex: 6.4,
+            justifyContent: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <View style={{ width: "100%", height: "70%", alignItems: "center", justifyContent: "center" }}>
+            <Ring delay={0} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
+            <Ring delay={500} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
+            <Ring delay={1000} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
+            <Ring delay={1500} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
 
-      <View style={styles.secondRow}>
-        <Ring delay={0} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
-        <Ring delay={500} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
-        <Ring delay={1000} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
-        <Ring delay={1500} color={isEntrada ? defaultRingColor : activeRingColor}></Ring>
+            {isEntrada ? (
+              <TouchableOpacity
+                style={[styles.button, styles.buttonStop]}
+                onPress={() => onSavePonto(false)} // Atualiza isEntrada para false
+              >
+                <Text style={[styles.buttonText, styles.buttonTextStop]}>Entrar</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => onSavePonto(true)} // Atualiza isEntrada para false
+              >
+                <Text style={styles.buttonText}>Sair</Text>
+              </TouchableOpacity>
+            )}
 
-        {isEntrada ? (
-          <TouchableOpacity
-            style={[styles.button, styles.buttonStop]}
-            onPress={() => onSavePonto(false)} // Atualiza isEntrada para false
-          >
-            <Text style={[styles.buttonText, styles.buttonTextStop]}>Entrar</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => onSavePonto(true)} // Atualiza isEntrada para false
-          >
-            <Text style={styles.buttonText}>Sair</Text>
-          </TouchableOpacity>
-        )}
+            <View style={{ height: (screen.height - 30) / 2 }}></View>
 
-        <View style={{ height: 320 }}></View>
-
-        <Text style={[styles.dateText, { marginBottom: 10 }]}>{formatDate(currentDateTime)}</Text>
-        <Text style={[styles.locationText, { marginBottom: 10 }]}>Em torno de Furriel, 250</Text>
-      </View>
-      <View style={styles.thirdRow}>
-        <View style={{ width: "100%", marginTop: 70 }}>
-          <Text style={{ fontSize: 15, marginBottom: 3, marginLeft: 10 }}>Últimos Registros</Text>
-          <View style={{ display: "flex", alignItems: "center" }}>
-            <FlatList
-              data={mockData}
-              style={{ marginTop: 0, width: "80%", display: "flex" }}
-              renderItem={({ item }) => (
-                <Item
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  func={() => props.navigation.navigate("AjustarPonto", { dia: item.title, batidas: item.subtitle })}
-                />
-              )}
-              keyExtractor={(item) => item.id}
-            />
+            <Text style={[styles.dateText, { marginBottom: 10 }]}>{formatDate(currentDateTime)}</Text>
+            <Text style={[styles.locationText, { marginBottom: 10 }]}>Em torno de Furriel, 250</Text>
+          </View>
+        </View>
+        <View style={{ display: "flex", flex: 2.5 }}>
+          <View style={{ width: "100%" }}>
+            <Text style={{ fontSize: 15, marginBottom: 8, marginLeft: 15 }}>Últimos Registros</Text>
+            <View style={{ display: "flex", alignItems: "center" }}>
+              <FlatList
+                data={mockData}
+                style={{ marginTop: 0, width: "80%", display: "flex" }}
+                renderItem={({ item }) => (
+                  <Item
+                    title={item.title}
+                    horarios={item.horarios}
+                    func={() => props.navigation.navigate("Ajustar Ponto", { dia: item.title, batidas: item.horarios })}
+                  />
+                )}
+                keyExtractor={(item) => item.id}
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -223,8 +237,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
-    margin: 6,
+    padding: 6,
+    margin: 5,
     backgroundColor: "#f5f5f5", // fundo mais claro
     borderRadius: 10, // bordas arredondadas
     shadowColor: "#000",
@@ -232,7 +246,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
+    shadowOpaity: 0.25,
     shadowRadius: 3.84,
     elevation: 5, // sombra no Android
   },
@@ -240,11 +254,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
   },
   itemSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#7f7f7f",
   },
   imageStyle: {
@@ -262,8 +276,8 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: 3,
     borderColor: "#C59B00",
-    width: (screen.width + 20) / 2,
-    height: (screen.width + 20) / 2,
+    width: (screen.width + 0) / 2,
+    height: (screen.width + 0) / 2,
     borderRadius: screen.width / 2,
     alignItems: "center",
     justifyContent: "center",
@@ -302,12 +316,12 @@ const styles = StyleSheet.create({
   },
 
   dateText: {
-    fontSize: 28, // Increased font size
+    fontSize: 30, // Increased font size
     marginVertical: 23, // Added space
     color: "black", // Changed color to black
   },
   locationText: {
-    fontSize: 17, // Increased font size
+    fontSize: 18, // Increased font size
     color: "black", // Changed color to black
   },
   inputTextBlack: {

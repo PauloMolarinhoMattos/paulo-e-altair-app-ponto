@@ -1,10 +1,8 @@
 import { View, Text } from "@motify/components";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { useContext, useEffect, useState } from "react";
+import { RouteProp } from "@react-navigation/native";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   BackHandler,
-  Button,
-  Touchable,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
@@ -13,9 +11,9 @@ import {
   Animated,
 } from "react-native";
 import { delay } from "../utils";
-
 import LottieView from "lottie-react-native";
 import { AuthContext } from "../contexts/auth";
+import { Platform } from "react-native";
 
 type LoadingPontoProps = {
   navigation: any; // You can specify more precise types if you want.
@@ -25,6 +23,11 @@ type LoadingPontoProps = {
 const screen = Dimensions.get("window");
 
 export default function LoadingPonto(props: any) {
+  const lottieSource =
+    Platform.OS === "ios"
+      ? require("./../../assets/lottie/animation_lnqb223p.json")
+      : require("./../../assets/lottie/animation_lnmmlqov.json");
+
   console.log(props.route.params);
   const [opacity] = useState(new Animated.Value(0));
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +35,7 @@ export default function LoadingPonto(props: any) {
   const [activeLottie, setActiveLottie] = useState<number | null>(null); // Armazenar qual LottieView foi clicado.
   const [activeImage, setActiveImage] = useState<number | null>(null); // Armazenar qual imagem foi clicada.
   const context: any = useContext(AuthContext);
+  const lottieRef = useRef<LottieView>(null);
 
   useEffect(() => {
     delay(1700).then(() => {
@@ -180,8 +184,10 @@ export default function LoadingPonto(props: any) {
             }}
           >
             <LottieView
-              source={require("./../../assets/lottie/animation_lnmmlqov.json")}
-              autoPlay
+              ref={lottieRef}
+              onLayout={() => lottieRef.current?.play()}
+              source={lottieSource}
+              autoPlay={false}
               style={{ width: 210, height: 210, position: "absolute" }}
               loop={false}
               onAnimationFinish={() => {

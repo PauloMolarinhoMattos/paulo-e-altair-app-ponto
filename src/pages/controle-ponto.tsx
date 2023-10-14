@@ -2,25 +2,25 @@ import React from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 
 const mockData = [
-  { id: "1", title: "08/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-  { id: "2", title: "07/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-  { id: "3", title: "06/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-  { id: "4", title: "05/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
-  { id: "5", title: "04/10/2023", subtitle: "08:30 - 12:00 - 13:30 - X" },
-  // ... adicione mais itens conforme necessário
+  { id: "1", title: "13/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "2", title: "11/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "3", title: "10/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "4", title: "09/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "5", title: "06/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "6", title: "05/10/2023", horarios: ["08:30", "12:00", "13:30", null] },
 ];
 
 interface ItemProps {
   title: string;
-  subtitle: string;
+  horarios: (string | null)[];
   func: () => void;
 }
 
-const Item: React.FC<ItemProps> = ({ title, subtitle, func }) => (
+const Item: React.FC<ItemProps> = ({ title, horarios, func }) => (
   <TouchableOpacity onPress={func} style={styles.itemContainer}>
     <View style={styles.textContainer}>
       <Text style={styles.itemText}>{title}</Text>
-      <Text style={styles.itemSubtitle}>{subtitle}</Text>
+      <Text style={styles.itemSubtitle}>{horarios.map((horario, index) => (horario ? horario : "X")).join(" - ")}</Text>
     </View>
   </TouchableOpacity>
 );
@@ -32,13 +32,13 @@ const ControleDePonto = (props: any) => {
       renderItem={({ item }) => (
         <Item
           title={item.title}
-          subtitle={item.subtitle}
-          func={() => props.navigation.navigate("AjustarPonto", { dia: item.title, batidas: item.subtitle })}
+          horarios={item.horarios}
+          func={() => props.navigation.navigate("Ajustar Ponto", { dia: item.title, batidas: item.horarios })}
         />
       )}
-      keyExtractor={(item) => item.id}                                                                        
+      keyExtractor={(item) => item.id}
     />
-  );                
+  );
 };
 
 const styles = StyleSheet.create({
