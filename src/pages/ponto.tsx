@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, Image, FlatList } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -72,6 +72,27 @@ export default function Ponto(props: any) {
     };
   }, []);
 
+  const mockData = [
+    { id: "1", title: "08/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
+    { id: "2", title: "07/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
+    { id: "3", title: "06/10/2023", subtitle: "08:30 - 12:00 - 13:30 - 18:00" },
+  ];
+
+  interface ItemProps {
+    title: string;
+    subtitle: string;
+    func: () => void;
+  }
+
+  const Item: React.FC<ItemProps> = ({ title, subtitle, func }) => (
+    <TouchableOpacity onPress={func} style={styles.itemContainer}>
+      <View style={styles.textContainer}>
+        <Text style={styles.itemText}>{title}</Text>
+        <Text style={styles.itemSubtitle}>{subtitle}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   const defaultRingColor = "#007EF4";
   const activeRingColor = "#C59B00";
 
@@ -138,12 +159,30 @@ export default function Ponto(props: any) {
           </TouchableOpacity>
         )}
 
-        <View style={{ height: 350 }}></View>
+        <View style={{ height: 320 }}></View>
 
         <Text style={[styles.dateText, { marginBottom: 10 }]}>{formatDate(currentDateTime)}</Text>
         <Text style={[styles.locationText, { marginBottom: 10 }]}>Em torno de Furriel, 250</Text>
       </View>
-      <View style={styles.thirdRow}></View>
+      <View style={styles.thirdRow}>
+        <View style={{ width: "100%", marginTop: 70 }}>
+          <Text style={{ fontSize: 15, marginBottom: 3, marginLeft: 10 }}>Últimos Registros</Text>
+          <View style={{ display: "flex", alignItems: "center" }}>
+            <FlatList
+              data={mockData}
+              style={{ marginTop: 0, width: "80%", display: "flex" }}
+              renderItem={({ item }) => (
+                <Item
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  func={() => props.navigation.navigate("AjustarPonto", { dia: item.title, batidas: item.subtitle })}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+            />
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
@@ -165,7 +204,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   firstRow: {
-    flex: 0.9,
+    flex: 1.1,
     display: "flex",
     justifyContent: "flex-end",
   },
@@ -175,7 +214,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   thirdRow: {
-    flex: 2.5, // 10% do espaço disponível
+    flex: 5.5,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  itemContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    margin: 6,
+    backgroundColor: "#f5f5f5", // fundo mais claro
+    borderRadius: 10, // bordas arredondadas
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, // sombra no Android
+  },
+  textContainer: {
+    flex: 1,
+  },
+  itemText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  itemSubtitle: {
+    fontSize: 14,
+    color: "#7f7f7f",
   },
   imageStyle: {
     marginTop: 30,
@@ -197,7 +267,6 @@ const styles = StyleSheet.create({
     borderRadius: screen.width / 2,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 30,
     position: "absolute",
     backgroundColor: "white",
   },
@@ -233,12 +302,12 @@ const styles = StyleSheet.create({
   },
 
   dateText: {
-    fontSize: 30, // Increased font size
+    fontSize: 28, // Increased font size
     marginVertical: 23, // Added space
     color: "black", // Changed color to black
   },
   locationText: {
-    fontSize: 18, // Increased font size
+    fontSize: 17, // Increased font size
     color: "black", // Changed color to black
   },
   inputTextBlack: {

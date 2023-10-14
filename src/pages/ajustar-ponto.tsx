@@ -18,7 +18,7 @@ export function AjustarPonto(props: any) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ajustar ponto do dia {props.route.params.dia}</Text>
+      <Text style={styles.title}>{props.route.params.dia}</Text>
       <TextInput value={entrada1} onChangeText={setEntrada1} placeholder="Entrada 1" style={styles.input} />
       <TextInput value={saida1} onChangeText={setSaida1} placeholder="Saída 1" style={styles.input} />
       <TextInput value={entrada2} onChangeText={setEntrada2} placeholder="Entrada 2" style={styles.input} />
@@ -44,9 +44,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 26,
+    marginBottom: 30,
     paddingTop: 20, // padding adicionado ao topo
   },
   input: {

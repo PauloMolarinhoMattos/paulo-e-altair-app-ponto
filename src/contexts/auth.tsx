@@ -8,11 +8,11 @@ function AuthProvider(props: any) {
   const [user, setUser] = useState("");
   const [firstPonto, setFirstPonto] = useState(true);
   function signIn(email: string, password: string) {
-    if (email !== "" && password !== "") {
+ //   if (email !== "" && password !== "") {
       setUser(email);
       setFirstPonto(true);
       navigation.navigate("Drawer" as never);
-    }
+   // }
   }
 
   return (

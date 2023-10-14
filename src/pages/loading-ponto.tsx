@@ -155,7 +155,7 @@ export default function LoadingPonto(props: any) {
                 props.navigation.goBack();
               }} // Atualiza isEntrada para false
             >
-              <Text style={{ fontSize: 16, color: "#132f48" }}>Voltar</Text>
+              <Text style={{ fontSize: 16, color: "#132f48" }}>Concluir</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
