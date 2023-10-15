@@ -12,6 +12,7 @@ export function AjustarPonto(props: any) {
   const [entrada3, setEntrada3] = useState("");
   const [saida3, setSaida3] = useState("");
   const [observacao, setObservacao] = useState("");
+  const [justificativa, setJustificativa] = useState("");
 
   const funcoesDeBatida = [setEntrada1, setSaida1, setEntrada2, setSaida2, setEntrada3, setSaida3];
 
@@ -25,6 +26,7 @@ export function AjustarPonto(props: any) {
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [currentField, setCurrentField] = useState("");
   const [selectedTime, setSelectedTime] = useState(new Date());
+  const [isJustificativaTouched, setIsJustificativaTouched] = useState(false);
 
   const showPicker = (field: string) => {
     console.log("FIELD", field);
@@ -70,7 +72,11 @@ export function AjustarPonto(props: any) {
   };
 
   const handleSave = () => {
-    // Aqui você pode adicionar a lógica para salvar os dados dos inputs
+    if (!justificativa) {
+      setIsJustificativaTouched(true);
+      return; // Se a justificativa estiver vazia, retornaremos cedo e não prosseguiremos com a lógica de salvar.
+    }
+    // Continuar com a lógica de salvar
     console.log("Dados salvos!");
   };
 
@@ -101,6 +107,16 @@ export function AjustarPonto(props: any) {
         <TextInput value={saida3} placeholder="Saída 3" style={styles.input} editable={false} />
       </TouchableOpacity>
 
+      <TextInput
+        value={justificativa}
+        onChangeText={setJustificativa}
+        placeholder="Justificativa"
+        style={[styles.input, isJustificativaTouched && !justificativa ? styles.errorInput : {}]}
+        onBlur={() => setIsJustificativaTouched(true)} // Marca o campo como tocado quando ele perde o foco
+        multiline // Para permitir múltiplas linhas no input
+      />
+
+      {isJustificativaTouched && !justificativa && <Text style={styles.errorText}>A justificativa é obrigatória.</Text>}
       {isPickerVisible && (
         <DateTimePicker
           mode="time"
@@ -118,8 +134,10 @@ export function AjustarPonto(props: any) {
           }}
         />
       )}
-
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
+      <TouchableOpacity
+        style={[styles.button, justificativa ? {} : styles.buttonDisabled]}
+        onPress={handleSave}
+      >
         <Text style={styles.buttonText}>Salvar</Text>
       </TouchableOpacity>
     </View>
@@ -131,6 +149,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F9F9F9", // Um fundo leve
+  },
+  buttonDisabled: {
+    backgroundColor: "#E0E0E0", // Um cinza claro para o fundo do botão desativado
+    borderColor: "#C0C0C0", // Um cinza para a borda do botão desativado
+  },
+  errorInput: {
+    borderColor: "red",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 15,
+    fontSize: 14,
+    fontWeight: "bold",
   },
   title: {
     fontSize: 28,
