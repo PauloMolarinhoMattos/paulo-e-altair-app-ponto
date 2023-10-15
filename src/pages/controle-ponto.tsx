@@ -1,13 +1,28 @@
-import React from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useRef, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  TouchableOpacityProps,
+  Modal,
+  ActivityIndicator,
+  Platform,
+} from "react-native";
+import LottieView from "lottie-react-native";
+import DateRangeFilter from "../components/date-range";
+import { FontAwesome } from "@expo/vector-icons"; // Importe o ícone necessário
 
 const mockData = [
   { id: "1", title: "13/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
   { id: "2", title: "11/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
   { id: "3", title: "10/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
-  { id: "4", title: "09/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
+  { id: "4", title: "09/10/2023", horarios: ["08:30", "12:00", null, null] },
   { id: "5", title: "06/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
-  { id: "6", title: "05/10/2023", horarios: ["08:30", "12:00", "13:30", null] },
+  { id: "7", title: "22/09/2023", horarios: ["08:30", "12:00", "13:30", null] },
+  { id: "8", title: "21/09/2023", horarios: ["08:30", "12:00", "13:30", null] },
+  { id: "9", title: "20/09/2023", horarios: ["08:30", "12:00", "13:30", null] },
 ];
 
 interface ItemProps {
@@ -26,22 +41,152 @@ const Item: React.FC<ItemProps> = ({ title, horarios, func }) => (
 );
 
 const ControleDePonto = (props: any) => {
+  const lottieSource =
+    Platform.OS === "ios"
+      ? require("./../../assets/lottie/animation_lnrqvhef.json")
+      : require("./../../assets/lottie/animation_lnrqvhef.json");
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const lottieRef = useRef<LottieView>(null);
+  const [filteredData, setFilteredData] = useState(mockData); // Novo estado para dados filtrados
+
+  const handleDateFilter = (start: Date | null, end: Date | null) => {
+    let result: typeof mockData = [];
+
+    if (!start && !end) {
+      result = mockData;
+    } else if (start && !end) {
+      result = mockData.filter((item) => {
+        const itemDate = new Date(item.title.split("/").reverse().join("-"));
+        return itemDate >= start;
+      });
+    } else if (!start && end) {
+      result = mockData.filter((item) => {
+        const itemDate = new Date(item.title.split("/").reverse().join("-"));
+        return itemDate <= end;
+      });
+    } else if (start && end) {
+      result = mockData.filter((item) => {
+        const itemDate = new Date(item.title.split("/").reverse().join("-"));
+        return itemDate >= start && itemDate <= end;
+      });
+    }
+
+    setFilteredData(result);
+  };
+
+  const ButtonRelatorio: React.FC<TouchableOpacityProps> = ({ children, ...props }) => {
+    return (
+      <TouchableOpacity style={[styles.button]} {...props}>
+        <FontAwesome name="download" size={15} color="#0D5393" style={styles.icon} />
+        <Text style={styles.buttonText}>{children}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <FlatList
-      data={mockData}
-      renderItem={({ item }) => (
-        <Item
-          title={item.title}
-          horarios={item.horarios}
-          func={() => props.navigation.navigate("Ajustar Ponto", { dia: item.title, batidas: item.horarios })}
-        />
-      )}
-      keyExtractor={(item) => item.id}
-    />
+    <View style={{ flex: 1, paddingHorizontal: 16 }}>
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={isModalVisible}
+        onRequestClose={() => {
+          setIsModalVisible(false);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <LottieView
+            ref={lottieRef}
+            onLayout={() => lottieRef.current?.play()}
+            source={lottieSource}
+            autoPlay={false}
+            style={{ width: 210, height: 210 }}
+            loop={false}
+            onAnimationFinish={() => {
+              setIsModalVisible(false);
+            }}
+          />
+          <Text style={styles.modalText}>Downloading</Text>
+        </View>
+      </Modal>
+      <View
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          marginTop: 15,
+          justifyContent: "space-between",
+          height: "7%",
+          marginBottom: 10,
+        }}
+      >
+        <DateRangeFilter onFilter={handleDateFilter} />
+        <ButtonRelatorio
+          onPress={() => {
+            setIsModalVisible(true);
+            // Adicione aqui a ação do botão, se necessário
+          }}
+        >
+          Relatório
+        </ButtonRelatorio>
+      </View>
+      <FlatList
+        data={filteredData} // Usando filteredData em vez de mockData
+        renderItem={({ item }) => (
+          <Item
+            title={item.title}
+            horarios={item.horarios}
+            func={() => props.navigation.navigate("Ajustar Ponto", { dia: item.title, batidas: item.horarios })}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  button: {
+    padding: 2,
+    marginTop: 2,
+    width: "35%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semi-transparente
+  },
+  modalText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#FFFFFF",
+  },
+  icon: {
+    marginRight: 10, // Adiciona algum espaço entre o ícone e o texto
+  },
+  buttonText: {
+    color: "#132f48", // Cor do texto
+    fontSize: 11,
+    fontWeight: "600", // Texto mais em negrito
+
+    letterSpacing: 2,
+  },
   itemContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

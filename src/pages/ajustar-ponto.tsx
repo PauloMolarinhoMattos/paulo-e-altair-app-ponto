@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFocusEffect } from "@react-navigation/native";
 
 export function AjustarPonto(props: any) {
   console.log(props.route.params);
@@ -12,21 +13,36 @@ export function AjustarPonto(props: any) {
   const [saida3, setSaida3] = useState("");
   const [observacao, setObservacao] = useState("");
 
+  const funcoesDeBatida = [setEntrada1, setSaida1, setEntrada2, setSaida2, setEntrada3, setSaida3];
+
+  useFocusEffect(
+    React.useCallback(() => {
+      props.route.params.batidas.map((batida: string | null, index: number) => {
+        funcoesDeBatida[index](batida ? batida : "");
+      });
+    }, [])
+  );
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [currentField, setCurrentField] = useState("");
   const [selectedTime, setSelectedTime] = useState(new Date());
 
   const showPicker = (field: string) => {
+    console.log("FIELD", field);
     setCurrentField(field);
     setIsPickerVisible(true);
   };
 
-  const handleSetTime = (event: any, selectedTime?: Date) => {
-    setIsPickerVisible(false);
+  const handleSetTime = (selectedTime?: Date) => {
     if (selectedTime) {
+      setSelectedTime(selectedTime);
+      setIsPickerVisible(false);
+      console.log("CAMPO ATUAL", currentField);
+
       const hours = selectedTime.getHours();
       const minutes = selectedTime.getMinutes();
-      const timeString = `${hours}:${minutes}`;
+      const timeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+
+      console.log("HORA FORMATADA", timeString);
       switch (currentField) {
         case "entrada1":
           setEntrada1(timeString);
@@ -47,6 +63,9 @@ export function AjustarPonto(props: any) {
           setSaida3(timeString);
           break;
       }
+
+      setSelectedTime(selectedTime);
+      setIsPickerVisible(false);
     }
   };
 
@@ -85,13 +104,16 @@ export function AjustarPonto(props: any) {
       {isPickerVisible && (
         <DateTimePicker
           mode="time"
-          display="spinner"
+          display={Platform.OS === "android" ? "spinner" : "default"} // This will set "spinner" for Android and "default" for iOS.
           value={selectedTime}
           onChange={(event, selectedTime) => {
-            if (selectedTime) {
-              handleSetTime(selectedTime)
-              setSelectedTime(selectedTime);
+            if (event.type === "dismissed") {
               setIsPickerVisible(false);
+              return;
+            }
+
+            if (selectedTime) {
+              handleSetTime(selectedTime);
             }
           }}
         />
@@ -122,6 +144,9 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0", // Cor de borda mais suave
     padding: 15,
     fontSize: 18,
+    fontWeight: "bold",
+    fontStyle: "normal",
+    color: "black",
     borderRadius: 12, // Bordas mais arredondadas
     marginBottom: 15,
     backgroundColor: "#FFF", // Fundo branco
