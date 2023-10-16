@@ -28,7 +28,7 @@ export default function DrawerRoutes() {
       />
 
       <Drawer.Screen
-        name="Banco de Horas"
+        name="Indicadores"
         component={BancoDeHoras}
         options={{
           drawerIcon: ({ focused, size, color }) => <FontAwesome name="calendar" size={size} color={color} />,

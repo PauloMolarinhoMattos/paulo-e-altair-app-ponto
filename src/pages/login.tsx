@@ -10,7 +10,7 @@ export default function Login(props: any) {
   const context: any = useContext(AuthContext);
 
   const welcomeAnim = useRef(new Animated.Value(-200)).current; // Posição inicial fora da tela para o texto "Bem-Vindo(a)"
-  const inputAnim = useRef(new Animated.Value(600)).current; // Posição inicial fora da tela para os campos de entrada
+  const inputAnim = useRef(new Animated.Value(-200)).current; // Posição inicial fora da tela para os campos de entrada
   const buttonAnim = useRef(new Animated.Value(600)).current; // Posição inicial fora da tela para o botão
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function Login(props: any) {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.firstRow, { transform: [{ translateY: welcomeAnim }] }]}>
+      <Animated.View style={[styles.firstRow, { transform: [{ translateX: welcomeAnim }] }]}>
         <View style={{ width: "100%", flex: 4, alignItems: "center", justifyContent: "center" }}>
           <View style={styles.imageWrapper}>
             <Image source={require("./../../assets/logo-amarela.png")} style={styles.imageStyle} />
@@ -85,7 +85,7 @@ export default function Login(props: any) {
         </View>
       </Animated.View>
 
-      <Animated.View style={[styles.secondRow, { transform: [{ translateY: inputAnim }] }]}>
+      <Animated.View style={[styles.secondRow, { transform: [{ translateX: inputAnim }] }]}>
         <View style={styles.inputWrapper}>
           <TextInput
             style={[styles.input, styles.inputText, styles.inputField]}
