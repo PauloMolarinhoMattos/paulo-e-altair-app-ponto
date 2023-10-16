@@ -14,6 +14,7 @@ import React from "react";
 import { delay } from "../utils";
 import { AuthContext } from "../contexts/auth";
 import Icon from "react-native-vector-icons/Ionicons"; // Estou usando Ionicons aqui, mas você pode escolher outro conjunto de ícones.
+import * as Location from "expo-location";
 
 const Ring = (props: { delay: number; color: string }) => {
   const ring = useSharedValue(0);
@@ -41,10 +42,43 @@ export default function Ponto(props: any) {
   const [isLoading, setIsLoading] = useState(true);
   const [keyboardOpen, setKeyboardOpen] = useState(false); // Rastrear o status do teclado
   const [currentDateTime, setCurrentDateTime] = useState(new Date()); // Nova state para a data/hora atual
+  const [street, setStreet] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log("FOCUS");
+      (async () => {
+        try {
+          let { status } = await Location.requestForegroundPermissionsAsync();
+
+          if (status !== "granted") {
+            setErrorMsg("Permission to access location was denied");
+            return;
+          }
+
+          let location = await Location.getLastKnownPositionAsync({});
+
+          setLocation(location);
+
+          if (!location) {
+            setStreet("Sua Localização Aqui");
+            return;
+          }
+
+          // Reverse Geocoding to get street name
+          let reverseGeo = await Location.reverseGeocodeAsync({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+
+          if (reverseGeo.length > 0) {
+            setStreet(reverseGeo[0].street ? "Em torno de " + reverseGeo[0].street : "Sua Localização Aqui");
+          } else {
+            setStreet("Sua Localização Aqui");
+          }
+        } catch (error) {
+          setStreet("Sua Localização Aqui");
+        }
+      })();
     }, [])
   );
 
@@ -108,6 +142,9 @@ export default function Ponto(props: any) {
   }
 
   const context: any = useContext(AuthContext);
+
+  const [location, setLocation] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   return isLoading ? (
     <View style={{ height: "100%", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -174,7 +211,7 @@ export default function Ponto(props: any) {
             <View style={{ height: (screen.height - 30) / 2 }}></View>
 
             <Text style={[styles.dateText, { marginBottom: 10 }]}>{formatDate(currentDateTime)}</Text>
-            <Text style={[styles.locationText, { marginBottom: 10 }]}>Em torno de Furriel, 250</Text>
+            <Text style={[styles.locationText, { marginBottom: 10 }]}>{street}</Text>
           </View>
         </View>
         <View style={{ display: "flex", flex: 2.5 }}>
