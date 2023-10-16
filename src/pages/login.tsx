@@ -1,21 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, Pressable, View, Image, BackHandler } from "react-native";
-import { Input } from "@rneui/base";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { StyleSheet, Text, Pressable, View, Image, BackHandler, TextInput, Keyboard } from "react-native";
+import { Animated, Easing } from "react-native";
 import { AuthContext } from "../contexts/auth";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Login(props: any) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const context: any = useContext(AuthContext);
 
+  const welcomeAnim = useRef(new Animated.Value(-200)).current; // Posição inicial fora da tela para o texto "Bem-Vindo(a)"
+  const inputAnim = useRef(new Animated.Value(600)).current; // Posição inicial fora da tela para os campos de entrada
+  const buttonAnim = useRef(new Animated.Value(600)).current; // Posição inicial fora da tela para o botão
+
   useEffect(() => {
     const backAction = () => {
-      // Here you can navigate to another screen if needed
-      // navigation.navigate('Home');
-
-      // Returning `true` from `backAction` denotes that the back action has been handled
-      // So, it won't go back.
       return true;
     };
 
@@ -24,44 +23,114 @@ export default function Login(props: any) {
     return () => backHandler.remove();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      welcomeAnim.setValue(-200);
+      inputAnim.setValue(600);
+      buttonAnim.setValue(600);
+      Animated.parallel([
+        Animated.timing(welcomeAnim, {
+          toValue: 0,
+          duration: 800,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(inputAnim, {
+          toValue: 0,
+          duration: 800,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonAnim, {
+          toValue: 0,
+          duration: 800,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [])
+  );
+
+  const [fontSize, setFontSize] = useState(40); // State para controlar o tamanho da fonte
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setFontSize(20); // Define o tamanho da fonte para 20 quando o teclado é exibido
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setFontSize(40); // Retorna o tamanho da fonte para 40 quando o teclado é ocultado
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   function handleLogin() {
     context.signIn(username, password);
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.firstRow}>
-        <View style={styles.imageWrapper}>
-          <Image source={require("./../../assets/logo-amarela.png")} style={styles.imageStyle} />
+      <Animated.View style={[styles.firstRow, { transform: [{ translateY: welcomeAnim }] }]}>
+        <View style={{ width: "100%", flex: 4, alignItems: "center", justifyContent: "center" }}>
+          <View style={styles.imageWrapper}>
+            <Image source={require("./../../assets/logo-amarela.png")} style={styles.imageStyle} />
+          </View>
         </View>
-      </View>
-      <View style={styles.secondRow}>
+        <View style={{ width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={{ fontSize: fontSize, color: "white", fontWeight: "bold" }}>Bem-Vindo(a)</Text>
+        </View>
+      </Animated.View>
+
+      <Animated.View style={[styles.secondRow, { transform: [{ translateY: inputAnim }] }]}>
         <View style={styles.inputWrapper}>
-          <Input
-            style={[styles.input, styles.inputText]}
+          <TextInput
+            style={[styles.input, styles.inputText, styles.inputField]}
             placeholder="Usuário"
-            placeholderTextColor="white"
+            placeholderTextColor="#959595"
             value={username}
-            onChangeText={setUsername} // Atualiza o estado username
+            onChangeText={setUsername}
           />
-          <Input
-            style={[styles.input, styles.inputText]}
+          <TextInput
+            style={[styles.input, styles.inputText, styles.inputField]}
             placeholder="Senha"
-            placeholderTextColor="white"
+            placeholderTextColor="#959595"
             secureTextEntry={true}
             value={password}
-            onChangeText={setPassword} // Atualiza o estado password
+            onChangeText={setPassword}
           />
+
+          <View style={{ width: "85%" }}>
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+                color: "#AFAFAF",
+                marginLeft: 3,
+                textDecorationLine: "underline",
+              }}
+            >
+              Esqueceu a senha?
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.thirdRow}>
+      </Animated.View>
+      <Animated.View style={[styles.thirdRow, { transform: [{ translateY: buttonAnim }] }]}>
         <Pressable
           onPress={() => handleLogin()}
-          style={({ pressed }) => [styles.button, pressed ? { borderColor: "#fabd7b" } : { borderColor: "white" }]}
+          style={({ pressed }) => [
+            styles.button,
+            pressed ? { backgroundColor: "#001F3A" } : { backgroundColor: "#0169A5" },
+          ]}
         >
-          {({ pressed }) => <Text style={[{ color: "white" }, pressed ? { color: "#fabd7b" } : {}]}>Entrar</Text>}
+          {({ pressed }) => (
+            <Text style={[{ color: "white", fontSize: 20, fontWeight: "bold", letterSpacing: 2 }]}>Entrar</Text>
+          )}
         </Pressable>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -69,12 +138,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column", // This is default, so technically you don't need this line.
-    backgroundColor: "#132f48",
+    backgroundColor: "#033C5D",
   },
   firstRow: {
     flex: 4, // 40%
     alignItems: "center", // Centralizar horizontalmente
     justifyContent: "center", // Centralizar verticalmente
+    display: "flex",
   },
   secondRow: {
     flex: 4,
@@ -84,7 +154,7 @@ const styles = StyleSheet.create({
   thirdRow: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     flex: 3, // 30%
   },
   imageWrapper: {
@@ -95,15 +165,26 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    borderRadius: 15,
-    borderWidth: 2.2,
-    width: 120,
-    height: 45,
+    borderRadius: 22,
+    backgroundColor: "#0169A5",
+    width: 170,
+    height: 50,
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",
   },
+  inputField: {
+    borderRadius: 25,
+    backgroundColor: "white",
+    paddingHorizontal: 10,
+    color: "#000",
+    height: 50, // Ajustando a altura dos campos de entrada
+    marginVertical: 5,
+    marginBottom: 30,
+    width: "85%",
+  },
+
   imageStyle: {
     width: "100%",
     height: "100%",
