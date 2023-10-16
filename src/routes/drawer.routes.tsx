@@ -4,6 +4,7 @@ import Ponto from "../pages/ponto";
 import ControleDePonto from "../pages/controle-ponto";
 import BancoDeHoras from "../pages/banco-horas";
 import Aniversariantes from "../pages/aniversariantes";
+import Sair from "../pages/sair";
 
 const Drawer = createDrawerNavigator();
 
@@ -19,10 +20,10 @@ export default function DrawerRoutes() {
       />
 
       <Drawer.Screen
-        name="Gerenciar"
+        name="Cartão Ponto"
         component={ControleDePonto}
         options={{
-          drawerIcon: ({ focused, size, color }) => <FontAwesome name="gear" size={size} color={color} />,
+          drawerIcon: ({ focused, size, color }) => <FontAwesome name="id-card-o" size={size} color={color} />,
         }}
       />
 
@@ -39,6 +40,14 @@ export default function DrawerRoutes() {
         component={Aniversariantes}
         options={{
           drawerIcon: ({ focused, size, color }) => <FontAwesome name="birthday-cake" size={size} color={color} />,
+        }}
+      />
+
+<Drawer.Screen
+        name="Sair"
+        component={Sair}
+        options={{
+          drawerIcon: ({ focused, size, color }) => <FontAwesome name="sign-out" size={size} color={color} />,
         }}
       />
     </Drawer.Navigator>

@@ -3,11 +3,14 @@ import { View, TouchableOpacity, Text, StyleSheet, Modal } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | null) => void }) => {
+const DateRangeFilter = (props: {
+  onFilter: (start: Date | null, end: Date | null, filterInconsistentData: boolean) => void;
+}) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [pickerMode, setPickerMode] = useState<"start" | "end" | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [filterInconsistent, setFilterInconsistent] = useState(false);
 
   const handleConfirm = (selectedDate: Date | undefined) => {
     if (pickerMode === "start" && selectedDate) {
@@ -21,7 +24,8 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
   const clearDates = () => {
     setStartDate(null);
     setEndDate(null);
-    props.onFilter(null, null);
+    setFilterInconsistent(false);
+    props.onFilter(null, null, false);
   };
 
   const handleDateSelection = (selectedDate: Date | undefined) => {
@@ -78,6 +82,7 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <TouchableOpacity style={styles.centeredView} onPress={() => setModalVisible(false)} activeOpacity={1}>
           <View style={styles.modalView}>
+            <Text>De:</Text>
             <View
               style={{
                 height: "30%",
@@ -103,7 +108,7 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
                 />
               )}
             </View>
-
+            <Text>Até:</Text>
             <View
               style={{
                 height: "30%",
@@ -130,6 +135,27 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
               )}
             </View>
 
+            <View style={styles.checkboxContainer}>
+              <TouchableOpacity style={styles.checkbox}>
+                {filterInconsistent ? (
+                  <Icon
+                    name="check-square"
+                    onPress={() => setFilterInconsistent(!filterInconsistent)}
+                    size={30}
+                    color="#0D5393"
+                  />
+                ) : (
+                  <Icon
+                    name="square-o"
+                    size={30}
+                    onPress={() => setFilterInconsistent(!filterInconsistent)}
+                    color="#0D5393"
+                  />
+                )}
+              </TouchableOpacity>
+              <Text style={styles.checkboxLabel}>Batidas Inconsistentes</Text>
+            </View>
+
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.clearButton} onPress={() => clearDates()}>
                 <Text>Limpar</Text>
@@ -138,7 +164,7 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
               <TouchableOpacity
                 style={[styles.button, styles.filterButton]}
                 onPress={() => {
-                  props.onFilter(startDate, endDate);
+                  props.onFilter(startDate, endDate, filterInconsistent);
                   setModalVisible(false); // Fecha o modal após filtrar
                 }}
               >
@@ -161,6 +187,22 @@ const styles = StyleSheet.create({
     width: "35%",
     height: "100%",
   },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+
+  checkbox: {
+    marginRight: 10,
+  },
+
+  checkboxLabel: {
+    color: "#333",
+    fontSize: 15,
+  },
+
   button: {
     padding: 6,
     height: "100%",
@@ -186,7 +228,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: "90%",
-    height: "40%",
+    height: "44%",
     padding: 20,
     backgroundColor: "white",
     borderRadius: 8,
@@ -235,7 +277,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   dateInput: {
-    height: "70%",
+    height: "60%",
     display: "flex",
     justifyContent: "center",
     borderWidth: 0.5,

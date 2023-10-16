@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, Pressable, View, Image } from "react-native";
+import { Button, StyleSheet, Text, Pressable, View, Image, BackHandler } from "react-native";
 import { Input } from "@rneui/base";
 import { AuthContext } from "../contexts/auth";
 
@@ -8,6 +8,21 @@ export default function Login(props: any) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const context: any = useContext(AuthContext);
+
+  useEffect(() => {
+    const backAction = () => {
+      // Here you can navigate to another screen if needed
+      // navigation.navigate('Home');
+
+      // Returning `true` from `backAction` denotes that the back action has been handled
+      // So, it won't go back.
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    return () => backHandler.remove();
+  }, []);
 
   function handleLogin() {
     context.signIn(username, password);

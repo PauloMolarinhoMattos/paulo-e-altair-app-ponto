@@ -42,9 +42,6 @@ export function AjustarPonto(props: any) {
 
   const handleSetTime = (selectedTime: Date, isModal?: boolean) => {
     if (selectedTime) {
-      setSelectedTime(selectedTime);
-      setIsPickerVisible(false);
-      if (isModal) setIsModalVisible(false);
       console.log("CAMPO ATUAL", currentField);
 
       const hours = selectedTime.getHours();
@@ -75,6 +72,7 @@ export function AjustarPonto(props: any) {
 
       setSelectedTime(selectedTime);
       setIsPickerVisible(false);
+      if (isModal) setIsModalVisible(false);
     }
   };
 
@@ -97,27 +95,27 @@ export function AjustarPonto(props: any) {
       <View style={styles.container}>
         <Text style={styles.title}>{props.route.params.dia}</Text>
         <TouchableOpacity onPress={() => showPicker("entrada1")} style={styles.input}>
-          <Text>{entrada1 ? entrada1 : "Entrada 1"}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{entrada1 ? entrada1 : "Entrada 1"}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => showPicker("saida1")} style={styles.input}>
-          <Text>{saida1 ? saida1 : "Saída 1"}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{saida1 ? saida1 : "Saída 1"}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => showPicker("entrada2")}>
-          <TextInput value={entrada2} placeholder="Entrada 2" style={styles.input} editable={false} />
+        <TouchableOpacity onPress={() => showPicker("entrada2")} style={styles.input}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{entrada2 ? entrada2 : "Entrada 2"}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => showPicker("saida2")}>
-          <TextInput value={saida2} placeholder="Saída 2" style={styles.input} editable={false} />
+        <TouchableOpacity onPress={() => showPicker("saida2")} style={styles.input}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{saida2 ? saida2 : "Saída 2"}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => showPicker("entrada3")}>
-          <TextInput value={entrada3} placeholder="Entrada 3" style={styles.input} editable={false} />
+        <TouchableOpacity onPress={() => showPicker("entrada3")} style={styles.input}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{entrada3 ? entrada3 : "Entrada 3"}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => showPicker("saida3")}>
-          <TextInput value={saida3} placeholder="Saída 3" style={styles.input} editable={false} />
+        <TouchableOpacity onPress={() => showPicker("saida3")} style={styles.input}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{saida3 ? saida3 : "Saída 3"}</Text>
         </TouchableOpacity>
 
         <TextInput
@@ -184,7 +182,7 @@ export function AjustarPonto(props: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 8,
     backgroundColor: "#F9F9F9", // Um fundo leve
   },
   centeredView: {
@@ -228,7 +226,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#333", // Um tom de cinza mais suave para o título
     marginBottom: 30,
-    paddingTop: 20,
   },
   input: {
     borderWidth: 1,

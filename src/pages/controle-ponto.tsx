@@ -7,12 +7,12 @@ import {
   StyleSheet,
   TouchableOpacityProps,
   Modal,
-  ActivityIndicator,
   Platform,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import DateRangeFilter from "../components/date-range";
 import { FontAwesome } from "@expo/vector-icons"; // Importe o ícone necessário
+import Icon from "react-native-vector-icons/Ionicons"; // Estou usando Ionicons aqui, mas você pode escolher outro conjunto de ícones.
 
 const mockData = [
   { id: "1", title: "13/10/2023", horarios: ["08:30", "12:00", "13:30", "18:00"] },
@@ -31,14 +31,34 @@ interface ItemProps {
   func: () => void;
 }
 
-const Item: React.FC<ItemProps> = ({ title, horarios, func }) => (
-  <TouchableOpacity onPress={func} style={styles.itemContainer}>
-    <View style={styles.textContainer}>
-      <Text style={styles.itemText}>{title}</Text>
-      <Text style={styles.itemSubtitle}>{horarios.map((horario, index) => (horario ? horario : "X")).join(" - ")}</Text>
-    </View>
-  </TouchableOpacity>
-);
+const Item: React.FC<ItemProps> = ({ title, horarios, func }) => {
+  const hasNullValue = horarios.includes(null);
+
+  return (
+    <TouchableOpacity onPress={func} style={[styles.itemContainer, hasNullValue && styles.itemContainerWarning]}>
+      <View
+        style={{
+          width: "16%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {hasNullValue ? (
+          <Icon name="warning-outline" size={23} color="#DAA520" />
+        ) : (
+          <Icon name="location-outline" size={23} color="#0A4B86" selectionColor="#0A4B86" />
+        )}
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.itemText}>{title}</Text>
+        <Text style={styles.itemSubtitle}>
+          {horarios.map((horario, index) => (horario ? horario : "X")).join(" - ")}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const ControleDePonto = (props: any) => {
   const lottieSource =
@@ -50,26 +70,26 @@ const ControleDePonto = (props: any) => {
   const lottieRef = useRef<LottieView>(null);
   const [filteredData, setFilteredData] = useState(mockData); // Novo estado para dados filtrados
 
-  const handleDateFilter = (start: Date | null, end: Date | null) => {
-    let result: typeof mockData = [];
+  const handleDateFilter = (start: Date | null, end: Date | null, filterInconsistentData: boolean) => {
+    let result: typeof mockData = mockData;
 
-    if (!start && !end) {
-      result = mockData;
-    } else if (start && !end) {
-      result = mockData.filter((item) => {
+    if (start || end) {
+      result = result.filter((item) => {
         const itemDate = new Date(item.title.split("/").reverse().join("-"));
-        return itemDate >= start;
+        if (start && !end) {
+          return itemDate >= start;
+        } else if (!start && end) {
+          return itemDate <= end;
+        } else if (start && end) {
+          return itemDate >= start && itemDate <= end;
+        } else {
+          return true;
+        }
       });
-    } else if (!start && end) {
-      result = mockData.filter((item) => {
-        const itemDate = new Date(item.title.split("/").reverse().join("-"));
-        return itemDate <= end;
-      });
-    } else if (start && end) {
-      result = mockData.filter((item) => {
-        const itemDate = new Date(item.title.split("/").reverse().join("-"));
-        return itemDate >= start && itemDate <= end;
-      });
+    }
+
+    if (filterInconsistentData) {
+      result = result.filter((item) => item.horarios.includes(null));
     }
 
     setFilteredData(result);
@@ -106,7 +126,7 @@ const ControleDePonto = (props: any) => {
               setIsModalVisible(false);
             }}
           />
-          <Text style={styles.modalText}>Downloading</Text>
+          <Text style={styles.modalText}>Downloading...</Text>
         </View>
       </Modal>
       <View
@@ -166,6 +186,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 8,
   },
+  itemContainerWarning: {
+    shadowColor: "#A08C01",
+  },
+
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -192,6 +216,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
+    paddingLeft: 0,
     margin: 8,
     backgroundColor: "#f5f5f5", // fundo mais claro
     borderRadius: 10, // bordas arredondadas

@@ -86,7 +86,7 @@ export default function Ponto(props: any) {
   }
 
   const Item: React.FC<ItemProps> = ({ title, horarios, func }) => (
-    <TouchableOpacity onPress={func} style={styles.itemContainer}>
+    <TouchableOpacity style={styles.itemContainer}>
       <Icon name="location-outline" size={20} color="#0A4B86" selectionColor="#0A4B86" />
       <View style={styles.textContainer}>
         <Text style={styles.itemText}>
@@ -160,14 +160,14 @@ export default function Ponto(props: any) {
                 style={[styles.button, styles.buttonStop]}
                 onPress={() => onSavePonto(false)} // Atualiza isEntrada para false
               >
-                <Text style={[styles.buttonText, styles.buttonTextStop]}>Entrar</Text>
+                <Text style={[styles.buttonText, styles.buttonTextStop]}>ENTRADA</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => onSavePonto(true)} // Atualiza isEntrada para false
               >
-                <Text style={styles.buttonText}>Sair</Text>
+                <Text style={styles.buttonText}>SAÍDA</Text>
               </TouchableOpacity>
             )}
 
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: 3,
     borderColor: "#C59B00",
-    width: (screen.width + 0) / 2,
-    height: (screen.width + 0) / 2,
+    width: (screen.width - 30) / 2,
+    height: (screen.width - 30) / 2,
     borderRadius: screen.width / 2,
     alignItems: "center",
     justifyContent: "center",
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     borderColor: "#132f48",
   },
   buttonText: {
-    fontSize: 28,
+    fontSize: 25,
     color: "#C59B00",
   },
   ring: {
