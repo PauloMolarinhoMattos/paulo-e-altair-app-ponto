@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Modal } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export function AjustarPonto(props: any) {
   console.log(props.route.params);
@@ -27,17 +28,23 @@ export function AjustarPonto(props: any) {
   const [currentField, setCurrentField] = useState("");
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [isJustificativaTouched, setIsJustificativaTouched] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const showPicker = (field: string) => {
+    console.log("CLICOU");
+    if (Platform.OS === "ios") {
+      setIsModalVisible(true);
+    }
     console.log("FIELD", field);
     setCurrentField(field);
     setIsPickerVisible(true);
   };
 
-  const handleSetTime = (selectedTime?: Date) => {
+  const handleSetTime = (selectedTime: Date, isModal?: boolean) => {
     if (selectedTime) {
       setSelectedTime(selectedTime);
       setIsPickerVisible(false);
+      if (isModal) setIsModalVisible(false);
       console.log("CAMPO ATUAL", currentField);
 
       const hours = selectedTime.getHours();
@@ -81,75 +88,128 @@ export function AjustarPonto(props: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{props.route.params.dia}</Text>
-      <TouchableOpacity onPress={() => showPicker("entrada1")}>
-        <TextInput value={entrada1} placeholder="Entrada 1" style={styles.input} editable={false} />
-      </TouchableOpacity>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+      contentContainerStyle={styles.container}
+      scrollEnabled={true}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>{props.route.params.dia}</Text>
+        <TouchableOpacity onPress={() => showPicker("entrada1")} style={styles.input}>
+          <Text>{entrada1 ? entrada1 : "Entrada 1"}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => showPicker("saida1")}>
-        <TextInput value={saida1} placeholder="Saída 1" style={styles.input} editable={false} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => showPicker("saida1")} style={styles.input}>
+          <Text>{saida1 ? saida1 : "Saída 1"}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => showPicker("entrada2")}>
-        <TextInput value={entrada2} placeholder="Entrada 2" style={styles.input} editable={false} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => showPicker("entrada2")}>
+          <TextInput value={entrada2} placeholder="Entrada 2" style={styles.input} editable={false} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => showPicker("saida2")}>
-        <TextInput value={saida2} placeholder="Saída 2" style={styles.input} editable={false} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => showPicker("saida2")}>
+          <TextInput value={saida2} placeholder="Saída 2" style={styles.input} editable={false} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => showPicker("entrada3")}>
-        <TextInput value={entrada3} placeholder="Entrada 3" style={styles.input} editable={false} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => showPicker("entrada3")}>
+          <TextInput value={entrada3} placeholder="Entrada 3" style={styles.input} editable={false} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => showPicker("saida3")}>
-        <TextInput value={saida3} placeholder="Saída 3" style={styles.input} editable={false} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => showPicker("saida3")}>
+          <TextInput value={saida3} placeholder="Saída 3" style={styles.input} editable={false} />
+        </TouchableOpacity>
 
-      <TextInput
-        value={justificativa}
-        onChangeText={setJustificativa}
-        placeholder="Justificativa"
-        style={[styles.input, isJustificativaTouched && !justificativa ? styles.errorInput : {}]}
-        onBlur={() => setIsJustificativaTouched(true)} // Marca o campo como tocado quando ele perde o foco
-        multiline // Para permitir múltiplas linhas no input
-      />
-
-      {isJustificativaTouched && !justificativa && <Text style={styles.errorText}>A justificativa é obrigatória.</Text>}
-      {isPickerVisible && (
-        <DateTimePicker
-          mode="time"
-          display={Platform.OS === "android" ? "spinner" : "default"} // This will set "spinner" for Android and "default" for iOS.
-          value={selectedTime}
-          onChange={(event, selectedTime) => {
-            if (event.type === "dismissed") {
-              setIsPickerVisible(false);
-              return;
-            }
-
-            if (selectedTime) {
-              handleSetTime(selectedTime);
-            }
-          }}
+        <TextInput
+          value={justificativa}
+          onChangeText={setJustificativa}
+          placeholder="Justificativa"
+          style={[styles.input, isJustificativaTouched && !justificativa ? styles.errorInput : {}]}
+          onBlur={() => setIsJustificativaTouched(true)} // Marca o campo como tocado quando ele perde o foco
+          multiline // Para permitir múltiplas linhas no input
         />
-      )}
-      <TouchableOpacity
-        style={[styles.button, justificativa ? {} : styles.buttonDisabled]}
-        onPress={handleSave}
-      >
-        <Text style={styles.buttonText}>Salvar</Text>
-      </TouchableOpacity>
-    </View>
+
+        {isJustificativaTouched && !justificativa && (
+          <Text style={styles.errorText}>A justificativa é obrigatória.</Text>
+        )}
+        {isPickerVisible && Platform.OS !== "ios" && (
+          <DateTimePicker
+            mode="time"
+            display="spinner" // This will set "spinner" for Android and "default" for iOS.
+            value={selectedTime}
+            onChange={(event, selectedTime) => {
+              if (event.type === "dismissed") {
+                setIsPickerVisible(false);
+                return;
+              }
+
+              if (selectedTime) {
+                handleSetTime(selectedTime);
+              }
+            }}
+          />
+        )}
+        {isPickerVisible && isModalVisible && Platform.OS == "ios" && (
+          <Modal animationType="slide" transparent={true} visible={isModalVisible}>
+            <TouchableOpacity style={styles.centeredView} onPress={() => setIsModalVisible(false)} activeOpacity={1}>
+              <View style={styles.modalView}>
+                <DateTimePicker
+                  mode="time"
+                  display="default" // Changed this to default
+                  value={selectedTime}
+                  onChange={(event, selectedTime) => {
+                    if (event.type === "dismissed") {
+                      setIsPickerVisible(false);
+                      setIsModalVisible(false);
+                      return;
+                    }
+
+                    if (selectedTime) {
+                      handleSetTime(selectedTime, true);
+                    }
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        )}
+        <TouchableOpacity style={[styles.button, justificativa ? {} : styles.buttonDisabled]} onPress={handleSave}>
+          <Text style={styles.buttonText}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAwareScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 15,
     backgroundColor: "#F9F9F9", // Um fundo leve
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.4)", // semi-transparent background
+  },
+  modalView: {
+    width: "45%",
+    height: "15%",
+    backgroundColor: "white",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    alignItems: "center", // Add this
+    justifyContent: "center", // Add this
+  },
+
   buttonDisabled: {
     backgroundColor: "#E0E0E0", // Um cinza claro para o fundo do botão desativado
     borderColor: "#C0C0C0", // Um cinza para a borda do botão desativado
@@ -191,7 +251,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   button: {
-    backgroundColor: "white", // Uma cor primária sutil
+    backgroundColor: "#132f48",
     padding: 15,
     borderWidth: 1,
     borderColor: "#132f48",
@@ -208,7 +268,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   buttonText: {
-    color: "#132f48",
+    color: "#FFFFFF", // Branco
     fontSize: 18,
     fontWeight: "500",
   },

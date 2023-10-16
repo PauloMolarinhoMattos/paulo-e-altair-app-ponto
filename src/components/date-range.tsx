@@ -68,7 +68,7 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
             fontSize: 11,
             fontWeight: "bold",
             marginLeft: 20,
-            letterSpacing: 2
+            letterSpacing: 2,
           }}
         >
           Filtros
@@ -78,35 +78,57 @@ const DateRangeFilter = (props: { onFilter: (start: Date | null, end: Date | nul
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <TouchableOpacity style={styles.centeredView} onPress={() => setModalVisible(false)} activeOpacity={1}>
           <View style={styles.modalView}>
-            <TouchableOpacity onPress={() => setPickerMode("start")} style={styles.dateInput}>
-              <Text style={{ fontSize: 17 }}>{startDate ? startDate.toLocaleDateString() : "Data Inicial"}</Text>
-            </TouchableOpacity>
+            <View
+              style={{
+                height: "30%",
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <TouchableOpacity onPress={() => setPickerMode("start")} style={styles.dateInput}>
+                <Text style={{ fontSize: 15, marginLeft: 5 }}>
+                  {startDate ? startDate.toLocaleDateString() : "Data Inicial"}
+                </Text>
+              </TouchableOpacity>
+              {pickerMode === "start" && (
+                <DateTimePicker
+                  value={startDate || new Date()}
+                  mode="date"
+                  onChange={(event, selectedDate) => {
+                    handleDateSelection(selectedDate);
+                  }}
+                  display="calendar"
+                />
+              )}
+            </View>
 
-            {pickerMode === "start" && (
-              <DateTimePicker
-                value={startDate || new Date()}
-                mode="date"
-                onChange={(event, selectedDate) => {
-                  handleDateSelection(selectedDate);
-                }}
-                display="calendar"
-              />
-            )}
-
-            <TouchableOpacity onPress={() => setPickerMode("end")} style={styles.dateInput}>
-              <Text style={{ fontSize: 17 }}>{endDate ? endDate.toLocaleDateString() : "Data Final"}</Text>
-            </TouchableOpacity>
-
-            {pickerMode === "end" && (
-              <DateTimePicker
-                value={endDate || new Date()}
-                mode="date"
-                onChange={(event, selectedDate) => {
-                  handleDateSelection(selectedDate);
-                }}
-                display="calendar"
-              />
-            )}
+            <View
+              style={{
+                height: "30%",
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <TouchableOpacity onPress={() => setPickerMode("end")} style={styles.dateInput}>
+                <Text style={{ fontSize: 15, marginLeft: 5 }}>
+                  {endDate ? endDate.toLocaleDateString() : "Data Final"}
+                </Text>
+              </TouchableOpacity>
+              {pickerMode === "end" && (
+                <DateTimePicker
+                  value={endDate || new Date()}
+                  mode="date"
+                  onChange={(event, selectedDate) => {
+                    handleDateSelection(selectedDate);
+                  }}
+                  display="calendar"
+                />
+              )}
+            </View>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.clearButton} onPress={() => clearDates()}>
@@ -213,8 +235,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   dateInput: {
-    marginBottom: 30,
-    height: "15%",
+    height: "70%",
     display: "flex",
     justifyContent: "center",
     borderWidth: 0.5,
@@ -222,9 +243,7 @@ const styles = StyleSheet.create({
     width: "50%",
     borderColor: "#E0E0E0", // Cor de borda mais suave
     paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginHorizontal: 5,
-    marginVertical: 5, // Espaçamento vertical entre os campos de data
+    paddingHorizontal: 1,
     borderRadius: 10, // Bordas arredondadas
 
     // Sombras para aparência elevada
