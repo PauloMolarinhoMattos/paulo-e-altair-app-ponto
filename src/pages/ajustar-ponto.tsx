@@ -1,8 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, Modal } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { delay } from "../utils";
+
+import LottieView from "lottie-react-native";
+
+const lottieSource =
+  Platform.OS === "ios"
+    ? require("./../../assets/lottie/animation_lnqb223p.json")
+    : require("./../../assets/lottie/animation_lnmmlqov.json");
 
 export function AjustarPonto(props: any) {
   console.log(props.route.params);
@@ -29,6 +37,9 @@ export function AjustarPonto(props: any) {
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [isJustificativaTouched, setIsJustificativaTouched] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const lottieRef = useRef<LottieView>(null);
 
   const showPicker = (field: string) => {
     console.log("CLICOU");
@@ -82,6 +93,7 @@ export function AjustarPonto(props: any) {
       return; // Se a justificativa estiver vazia, retornaremos cedo e não prosseguiremos com a lógica de salvar.
     }
     // Continuar com a lógica de salvar
+    setIsSaving(true);
     console.log("Dados salvos!");
   };
 
@@ -165,6 +177,36 @@ export function AjustarPonto(props: any) {
                     if (selectedTime) {
                       handleSetTime(selectedTime, true);
                     }
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        )}
+
+        {isSaving && (
+          <Modal animationType="slide" transparent={true} visible={isSaving}>
+            <TouchableOpacity style={styles.centeredView} activeOpacity={1}>
+              <View
+                style={{
+                  width: "100%",
+                  height: "40%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <Text style={{ color: "white", fontSize: 19, fontWeight: 'bold' }}>Ajuste Salvo com Sucesso!</Text>
+                <LottieView
+                  ref={lottieRef}
+                  onLayout={() => lottieRef.current?.play()}
+                  source={lottieSource}
+                  autoPlay={false}
+                  style={{ width: 210, height: 210 }}
+                  loop={false}
+                  onAnimationFinish={() => {
+                    setIsSaving(false);
                   }}
                 />
               </View>
